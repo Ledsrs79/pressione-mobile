@@ -7,9 +7,9 @@
   "theme_color": "#3182CE",
   "icons": [
     {
-      "src": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/heart/heart-original.svg",
+      "src": "https://unpkg.com/lucide-static@0.344.0/icons/heart.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ]
 }
