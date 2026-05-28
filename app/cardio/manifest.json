@@ -7,9 +7,9 @@
   "theme_color": "#3182CE",
   "icons": [
     {
-      "src": "https://unpkg.com/lucide-static@0.344.0/icons/heart.png",
+      "src": "icona.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }
