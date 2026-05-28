@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardioLog Mobile</title>
+    
+    <link rel="manifest" href="manifest.json?v=4">
+    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/heart/heart-original.svg">
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/heart/heart-original.svg">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #1A202C;
+            --bg-card: #2D3748;
+            --text-main: #FFFFFF;
+            --text-muted: #A0AEC0;
+            --blue-accent: #3182CE;
+            --green-accent: #38A169;
+            --gray-btn: #4A5568;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 16px;
+            color: var(--blue-accent);
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 400px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+        
+        @media (min-width: 400px) {
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+        }
+
+        label {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input, select {
+            background-color: var(--bg-main);
+            border: 1px solid var(--gray-btn);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        input::placeholder {
+            color: #55637a;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+
+        button:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-blue { background-color: var(--blue-accent); color: white; }
+        .btn-gray { background-color: var(--gray-btn); color: white; }
+        .btn-green { background-color: var(--green-accent); color: white; }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--gray-btn);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: bold;
+            padding: 12px;
+            font-size: 15px;
+            border-bottom: 3px solid transparent;
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .tab-btn.active {
+            color: var(--blue-accent);
+            border-bottom: 3px solid var(--blue-accent);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 260px;
+            width: 100%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .table-wrapper {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-btn);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 10px 6px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-btn);
+        }
+
+        th { background-color: var(--bg-main); color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Registrazione Valori</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Momento della giornata:</label>
+                <select id="momento">
+                    <option value="Mattina">Mattina</option>
+                    <option value="Pranzo">Pranzo</option>
+                    <option value="Sera">Sera</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Pressione Max (Sistolica):</label>
+                <input type="number" id="max" placeholder="es. 120">
+            </div>
+            <div class="form-group">
+                <label>Pressione Min (Diastolica):</label>
+                <input type="number" id="min" placeholder="es. 80">
+            </div>
+            <div class="form-group">
+                <label>Battiti Cardiaci (BPM):</label>
+                <input type="number" id="bpm" placeholder="es. 70">
+            </div>
+        </div>
+        <button class="btn-blue" onclick="salvaDati()">SALVA MISURAZIONE</button>
+        <button class="btn-gray" onclick="apriModal()">Gestisci e Correggi Dati Storici</button>
+    </div>
+
+    <div class="card">
+        <label style="display:block; text-align:center; margin-bottom:12px; font-weight:bold; font-size:13px; letter-spacing: 0.5px;">VISUALIZZA ANDAMENTO DI:</label>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiaTab('Mattina')">Mattina</button>
+            <button class="tab-btn" onclick="cambiaTab('Pranzo')">Pranzo</button>
+            <button class="tab-btn" onclick="cambiaTab('Sera')">Sera</button>
+        </div>
+        <div class="chart-container">
+            <canvas id="graficoPressione"></canvas>
+        </div>
+    </div>
+</div>
+
+<div id="modalModifica" class="modal">
+    <div class="modal-content">
+        <h2>Correzione Dati Archivio</h2>
+        <p style="font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:12px;">Seleziona data e ora esatta da modificare:</p>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data/Ora</th>
+                        <th>Mom.</th>
+                        <th>Max</th>
+                        <th>Min</th>
+                        <th>BPM</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabella">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label>Data e Ora della riga da cambiare:</label>
+                <input type="text" id="targetData" placeholder="Scrivi es. 28/05 14:30">
+            </div>
+            <div class="form-group">
+                <label>Nuova Max:</label>
+                <input type="number" id="nMax" placeholder="es. 120">
+            </div>
+            <div class="form-group">
+                <label>Nuova Min:</label>
+                <input type="number" id="nMin" placeholder="es. 80">
+            </div>
+            <div class="form-group full-width">
+                <label>Nuovi Battiti (BPM):</label>
+                <input type="number" id="nBpm" placeholder="es. 72">
+            </div>
+        </div>
+        <button class="btn-green" onclick="eseguiModifica()">APPLICA MODIFICA</button>
+        <button class="btn-gray" onclick="chiudiModal()">ANNULLA</button>
+    </div>
+</div>
+
+<script>
+    let mioGrafico = null;
+    let tabCorrente = 'Mattina';
+
+    document.addEventListener("DOMContentLoaded", () => {
+        aggiornaGrafico();
+    });
+
+    function pulisciStringa(str) {
+        return str ? str.toString().replace(/^\s+|\s+$/g, '') : '';
+    }
+
+    function ottieniDati() {
+        let dati = localStorage.getItem("dati_pressione");
+        return dati ? JSON.parse(dati) : [];
+    }
+
+    function salvaDati() {
+        let momento = document.getElementById("momento").value;
+        let max = pulisciStringa(document.getElementById("max").value);
+        let min = pulisciStringa(document.getElementById("min").value);
+        let bpm = pulisciStringa(document.getElementById("bpm").value);
+
+        if(!max || !min || !bpm) {
+            alert("Tutti i campi devono essere compilati!");
+            return;
+        }
+
+        let adesso = new Date();
+        let dataOra = adesso.getDate().toString().padStart(2, '0') + '/' + 
+                      (adesso.getMonth()+1).toString().padStart(2, '0') + ' ' + 
+                      adesso.getHours().toString().padStart(2, '0') + ':' + 
+                      adesso.getMinutes().toString().padStart(2, '0');
+
+        let nuovoDato = { data: dataOra, momento: momento, max: parseInt(max), min: parseInt(min), bpm: parseInt(bpm) };
+        let archivio = ottieniDati();
+        archivio.push(nuovoDato);
+        localStorage.setItem("dati_pressione", JSON.stringify(archivio));
+
+        document.getElementById("max").value = "";
+        document.getElementById("min").value = "";
+        document.getElementById("bpm").value = "";
+
+        alert("Misurazione salvata correttamente!");
+        aggiornaGrafico();
+    }
+
+    function cambiaTab(momento) {
+        tabCorrente = momento;
+        let bottoni = document.querySelectorAll(".tab-btn");
+        bottoni.forEach(b => b.classList.remove("active"));
+        event.target.classList.add("active");
+        aggiornaGrafico();
+    }
+
+    function aggiornaGrafico() {
+        let archivio = ottieniDati();
+        let datiFiltrati = archivio.filter(d => d.momento === tabCorrente);
+
+        let etichette = datiFiltrati.map(d => d.data.split(" ")[0]);
+        let datasetMax = datiFiltrati.map(d => d.max);
+        let datasetMin = datiFiltrati.map(d => d.min);
+
+        let coloreMax = tabCorrente === 'Mattina' ? '#38BDF8' : (tabCorrente === 'Pranzo' ? '#F59E0B' : '#A855F7');
+        let coloreMin = tabCorrente === 'Mattina' ? '#60A5FA' : (tabCorrente === 'Pranzo' ? '#FBBF24' : '#F472B6');
+
+        if (mioGrafico) {
+            mioGrafico.destroy();
+        }
+
+        let ctx = document.getElementById('graficoPressione').getContext('2d');
+        mioGrafico = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: etichette,
+                datasets: [
+                    { label: 'Max', data: datasetMax, borderColor: coloreMax, backgroundColor: coloreMax, tension: 0.2, borderWidth: 2.5 },
+                    { label: 'Min', data: datasetMin, borderColor: coloreMin, backgroundColor: coloreMin, borderDash: [5, 5], tension: 0.2, borderWidth: 2 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                    y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+                },
+                plugins: {
+                    legend: { labels: { color: 'white', font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    function apriModal() {
+        let archivio = ottieniDati();
+        let corpo = document.getElementById("corpoTabella");
+        corpo.innerHTML = "";
+
+        [...archivio].reverse().forEach(d => {
+            let riga = `<tr>
+                <td>${d.data}</td>
+                <td>${d.momento.substring(0,3)}</td>
+                <td>${d.max}</td>
+                <td>${d.min}</td>
+                <td>${d.bpm}</td>
+            </tr>`;
+            corpo.innerHTML += riga;
+        });
+
+        document.getElementById("modalModifica").style.display = "flex";
+    }
+
+    function chiudiModal() {
+        document.getElementById("modalModifica").style.display = "none";
+    }
+
+    function eseguiModifica() {
+        let target = pulisciStringa(document.getElementById("targetData").value);
+        let nMax = document.getElementById("nMax").value;
+        let nMin = document.getElementById("nMin").value;
+        let nBpm = document.getElementById("nBpm").value;
+
+        if(!target || !nMax || !nMin || !nBpm) {
+            alert("Compila tutti i campi di modifica!");
+            return;
+        }
+
+        let archivio = ottieniDati();
+        let trovato = false;
+
+        archivio.forEach(d => {
+            if(d.data === target) {
+                d.max = parseInt(nMax);
+                d.min = parseInt(nMin);
+                d.bpm = parseInt(nBpm);
+                trovato = true;
+            }
+        });
+
+        if(trovato) {
+            localStorage.setItem("dati_pressione", JSON.stringify(archivio));
+            alert("Dato storico corretto con successo!");
+            chiudiModal();
+            aggiornaGrafico();
+        } else {
+            alert("Data e Ora non trovate. Controlla il formato.");
+        }
+    }
+</script>
+</body>
+</html>
