@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CardioLog Mobile</title>
+    
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/822/822143.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/822/822143.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -53,7 +57,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Griglia flessibile: 1 colonna su mobile, 2 su schermi più grandi */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -268,21 +271,23 @@
         </div>
 
         <div class="form-grid">
-            <div class="form-group full-width">
-                <label>Data e Ora della riga da cambiare:</label>
-                <input type="text" id="targetData" placeholder="Scrivi es. 28/05 14:30">
-            </div>
-            <div class="form-group">
-                <label>Nuova Max:</label>
-                <input type="number" id="nMax" placeholder="es. 120">
-            </div>
-            <div class="form-group">
-                <label>Nuova Min:</label>
-                <input type="number" id="nMin" placeholder="es. 80">
-            </div>
-            <div class="form-group full-width">
-                <label>Nuovi Battiti (BPM):</label>
-                <input type="number" id="nBpm" placeholder="es. 72">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Data e Ora della riga da cambiare:</label>
+                    <input type="text" id="targetData" placeholder="Scrivi es. 28/05 14:30">
+                </div>
+                <div class="form-group">
+                    <label>Nuova Max:</label>
+                    <input type="number" id="nMax" placeholder="es. 120">
+                </div>
+                <div class="form-group">
+                    <label>Nuova Min:</label>
+                    <input type="number" id="nMin" placeholder="es. 80">
+                </div>
+                <div class="form-group full-width">
+                    <label>Nuovi Battiti (BPM):</label>
+                    <input type="number" id="nBpm" placeholder="es. 72">
+                </div>
             </div>
         </div>
         <button class="btn-green" onclick="eseguiModifica()">APPLICA MODIFICA</button>
@@ -305,7 +310,7 @@
 
     function salvaDati() {
         let momento = document.getElementById("momento").value;
-        let max = document.getElementById("max").value.trim ? document.getElementById("max").value.trim() : document.getElementById("max").value;
+        let max = document.getElementById("max").value;
         let min = document.getElementById("min").value;
         let bpm = document.getElementById("bpm").value;
 
