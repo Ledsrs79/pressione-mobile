@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CardioLog Mobile</title>
     
-    <link rel="manifest" href="manifest.json?v=4">
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/heart/heart-original.svg">
-    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/heart/heart-original.svg">
+    <!-- COLLEGAMENTI CORRETTI IN FORMATO PNG PER COMPATIBILITÀ ANDROID -->
+    <link rel="manifest" href="manifest.json?v=5">
+    <link rel="icon" type="image/png" href="https://unpkg.com/lucide-static@0.344.0/icons/heart.png">
+    <link rel="apple-touch-icon" href="https://unpkg.com/lucide-static@0.344.0/icons/heart.png">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -344,7 +345,7 @@
         let bottoni = document.querySelectorAll(".tab-btn");
         bottoni.forEach(b => b.classList.remove("active"));
         event.target.classList.add("active");
-        aggiornaGrafico();
+        aggiarnaGrafico();
     }
 
     function aggiornaGrafico() {
