@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CardioLog Mobile</title>
     
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/822/822143.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/822/822143.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4698/4698114.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4698/4698114.png">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -303,6 +303,11 @@
         aggiornaGrafico();
     });
 
+    // Funzione di utilità per rimuovere spazi se non supportato nativamente
+    function pulisciStringa(str) {
+        return str ? str.toString().replace(/^\s+|\s+$/g, '') : '';
+    }
+
     function ottieniDati() {
         let dati = localStorage.getItem("dati_pressione");
         return dati ? JSON.parse(dati) : [];
@@ -310,9 +315,9 @@
 
     function salvaDati() {
         let momento = document.getElementById("momento").value;
-        let max = document.getElementById("max").value;
-        let min = document.getElementById("min").value;
-        let bpm = document.getElementById("bpm").value;
+        let max = pulisciStringa(document.getElementById("max").value);
+        let min = pulisciStringa(document.getElementById("min").value);
+        let bpm = pulisciStringa(document.getElementById("bpm").value);
 
         if(!max || !min || !bpm) {
             alert("Tutti i campi devono essere compilati!");
@@ -366,80 +371,4 @@
             type: 'line',
             data: {
                 labels: etichette,
-                datasets: [
-                    { label: 'Max', data: datasetMax, borderColor: coloreMax, backgroundColor: coloreMax, tension: 0.2, borderWidth: 2.5 },
-                    { label: 'Min', data: datasetMin, borderColor: coloreMin, backgroundColor: coloreMin, borderDash: [5, 5], tension: 0.2, borderWidth: 2 }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } },
-                    y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white', font: { size: 12 } } }
-                }
-            }
-        });
-    }
-
-    function apriModal() {
-        let archivio = ottieniDati();
-        let corpo = document.getElementById("corpoTabella");
-        corpo.innerHTML = "";
-
-        [...archivio].reverse().forEach(d => {
-            let riga = `<tr>
-                <td>${d.data}</td>
-                <td>${d.momento.substring(0,3)}</td>
-                <td>${d.max}</td>
-                <td>${d.min}</td>
-                <td>${d.bpm}</td>
-            </tr>`;
-            corpo.innerHTML += riga;
-        });
-
-        document.getElementById("modalModifica").style.display = "flex";
-    }
-
-    function chiudiModal() {
-        document.getElementById("modalModifica").style.display = "none";
-    }
-
-    function eseguiModifica() {
-        let target = document.getElementById("targetData").value.trim();
-        let nMax = document.getElementById("nMax").value;
-        let nMin = document.getElementById("nMin").value;
-        let nBpm = document.getElementById("nBpm").value;
-
-        if(!target || !nMax || !nMin || !nBpm) {
-            alert("Compila tutti i campi di modifica!");
-            return;
-        }
-
-        let archivio = ottieniDati();
-        let trovato = false;
-
-        archivio.forEach(d => {
-            if(d.data === target) {
-                d.max = parseInt(nMax);
-                d.min = parseInt(nMin);
-                d.bpm = parseInt(nBpm);
-                trovato = true;
-            }
-        });
-
-        if(trovato) {
-            localStorage.setItem("dati_pressione", JSON.stringify(archivio));
-            alert("Dato storico corretto con successo!");
-            chiudiModal();
-            aggiornaGrafico();
-        } else {
-            alert("Data e Ora non trovate. Controlla il formato.");
-        }
-    }
-</script>
-</body>
-</html>
+                datasets:
