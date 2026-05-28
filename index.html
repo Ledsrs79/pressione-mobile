@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardioLog Mobile</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #1A202C;
+            --bg-card: #2D3748;
+            --text-main: #FFFFFF;
+            --text-muted: #A0AEC0;
+            --blue-accent: #3182CE;
+            --green-accent: #38A169;
+            --gray-btn: #4A5568;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 16px;
+            color: var(--blue-accent);
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            background-color: var(--bg-main);
+            border: 1px solid var(--gray-btn);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-blue { background-color: var(--blue-accent); color: white; }
+        .btn-gray { background-color: var(--gray-btn); color: white; }
+        .btn-green { background-color: var(--green-accent); color: white; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: bold;
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            color: var(--blue-accent);
+            border-bottom: 2px solid var(--blue-accent);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Modal / Sottofinestra Correzione */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .table-wrapper {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid var(--gray-btn);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-btn);
+        }
+
+        th { background-color: var(--bg-main); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Registrazione Valori</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Momento:</label>
+                <select id="momento">
+                    <option value="Mattina">Mattina</option>
+                    <option value="Pranzo">Pranzo</option>
+                    <option value="Sera">Sera</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Max (mmHg):</label>
+                <input type="number" id="max" placeholder="es. 120">
+            </div>
+            <div class="form-group">
+                <label>Min (mmHg):</label>
+                <input type="number" id="min" placeholder="es. 80">
+            </div>
+            <div class="form-group">
+                <label>Battiti (BPM):</label>
+                <input type="number" id="bpm" placeholder="es. 70">
+            </div>
+        </div>
+        <button class="btn-blue" onclick="salvaDati()">SALVA MISURAZIONE</button>
+        <button class="btn-gray" onclick="apriModal()">Gestisci e Correggi Dati Storici</button>
+    </div>
+
+    <div class="card">
+        <label style="display:block; text-align:center; margin-bottom:10px; font-weight:bold;">VISUALIZZA ANDAMENTO DI:</label>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiaTab('Mattina')">Mattina</button>
+            <button class="tab-btn" onclick="cambiaTab('Pranzo')">Pranzo</button>
+            <button class="tab-btn" onclick="cambiaTab('Sera')">Sera</button>
+        </div>
+        <div class="chart-container">
+            <canvas id="graficoPressione"></canvas>
+        </div>
+    </div>
+</div>
+
+<div id="modalModifica" class="modal">
+    <div class="modal-content">
+        <h2>Pannello di Correzione Dati</h2>
+        <p style="font-size:12px; color:var(--text-muted); text-align:center;">Storico delle misurazioni (dalla più recente):</p>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data/Ora</th>
+                        <th>Mom.</th>
+                        <th>Max</th>
+                        <th>Min</th>
+                        <th>BPM</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabella">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label>Data e Ora esatta da modificare:</label>
+                <input type="text" id="targetData" placeholder="es. 28/05 14:30">
+            </div>
+            <div class="form-group">
+                <label>Nuova Max:</label>
+                <input type="number" id="nMax">
+            </div>
+            <div class="form-group">
+                <label>Nuova Min:</label>
+                <input type="number" id="nMin">
+            </div>
+            <div class="form-group full-width">
+                <label>Nuovi Battiti:</label>
+                <input type="number" id="nBpm">
+            </div>
+        </div>
+        <button class="btn-green" onclick="eseguiModifica()">APPLICA MODIFICA</button>
+        <button class="btn-gray" onclick="chiudiModal()">ANNULLA</button>
+    </div>
+</div>
+
+<script>
+    let mioGrafico = null;
+    let tabCorrente = 'Mattina';
+
+    // Carica i dati all'avvio
+    document.addEventListener("DOMContentLoaded", () => {
+        aggiornaGrafico();
+    });
+
+    function ottieniDati() {
+        let dati = localStorage.getItem("dati_pressione");
+        return dati ? JSON.parse(dati) : [];
+    }
+
+    function salvaDati() {
+        let momento = document.getElementById("momento").value;
+        let max = document.getElementById("max").value.strip ? document.getElementById("max").value.trim() : document.getElementById("max").value;
+        let min = document.getElementById("min").value;
+        let bpm = document.getElementById("bpm").value;
+
+        if(!max || !min || !bpm) {
+            alert("Tutti i campi devono essere compilati!");
+            return;
+        }
+
+        // Genera data e ora
+        let adesso = new Date();
+        let dataOra = adesso.getDate().toString().padStart(2, '0') + '/' + 
+                      (adesso.getMonth()+1).toString().padStart(2, '0') + ' ' + 
+                      adesso.getHours().toString().padStart(2, '0') + ':' + 
+                      adesso.getMinutes().toString().padStart(2, '0');
+
+        let nuovoDato = { data: dataOra, momento: momento, max: parseInt(max), min: parseInt(min), bpm: parseInt(bpm) };
+        let archivio = ottieniDati();
+        archivio.push(nuovoDato);
+        localStorage.setItem("dati_pressione", JSON.stringify(archivio));
+
+        document.getElementById("max").value = "";
+        document.getElementById("min").value = "";
+        document.getElementById("bpm").value = "";
+
+        alert("Misurazione salvata!");
+        aggiornaGrafico();
+    }
+
+    function cambiaTab(momento) {
+        tabCorrente = momento;
+        let bottoni = document.querySelectorAll(".tab-btn");
+        bottoni.forEach(b => b.classList.remove("active"));
+        event.target.classList.add("active");
+        aggiornaGrafico();
+    }
+
+    function aggiornaGrafico() {
+        let archivio = ottieniDati();
+        let datiFiltrati = archivio.filter(d => d.momento === tabCorrente);
+
+        let etichette = datiFiltrati.map(d => d.data.split(" ")[0]); // Solo giorno/mese
+        let datasetMax = datiFiltrati.map(d => d.max);
+        let datasetMin = datiFiltrati.map(d => d.min);
+
+        let coloreMax = tabCorrente === 'Mattina' ? '#38BDF8' : (tabCorrente === 'Pranzo' ? '#F59E0B' : '#A855F7');
+        let coloreMin = tabCorrente === 'Mattina' ? '#60A5FA' : (tabCorrente === 'Pranzo' ? '#FBBF24' : '#F472B6');
+
+        if (mioGrafico) {
+            mioGrafico.destroy();
+        }
+
+        let ctx = document.getElementById('graficoPressione').getContext('2d');
+        mioGrafico = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: etichette,
+                datasets: [
+                    { label: 'Max', data: datasetMax, borderColor: coloreMax, backgroundColor: coloreMax, tension: 0.2, borderWidth: 2.5 },
+                    { label: 'Min', data: datasetMin, borderColor: coloreMin, backgroundColor: coloreMin, borderDash: [5, 5], tension: 0.2, borderWidth: 2 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                },
+                plugins: {
+                    legend: { labels: { color: 'white' } }
+                }
+            }
+        });
+    }
+
+    // Gestione Finestra Correzione
+    function apriModal() {
+        let archivio = ottieniDati();
+        let corpo = document.getElementById("corpoTabella");
+        corpo.innerHTML = "";
+
+        // Mostra dal più recente
+        [...archivio].reverse().forEach(d => {
+            let riga = `<tr>
+                <td>${d.data}</td>
+                <td>${d.momento.substring(0,3)}</td>
+                <td>${d.max}</td>
+                <td>${d.min}</td>
+                <td>${d.bpm}</td>
+            </tr>`;
+            corpo.innerHTML += riga;
+        });
+
+        document.getElementById("modalModifica").style.display = "flex";
+    }
+
+    function chiudiModal() {
+        document.getElementById("modalModifica").style.display = "none";
+    }
+
+    function eseguiModifica() {
+        let target = document.getElementById("targetData").value.trim();
+        let nMax = document.getElementById("nMax").value;
+        let nMin = document.getElementById("nMin").value;
+        let nBpm = document.getElementById("nBpm").value;
+
+        if(!target || !nMax || !nMin || !nBpm) {
+            alert("Compila tutti i campi di modifica!");
+            return;
+        }
+
+        let archivio = ottieniDati();
+        let trovato = false;
+
+        archivio.forEach(d => {
+            if(d.data === target) {
+                d.max = parseInt(nMax);
+                d.min = parseInt(nMin);
+                d.bpm = parseInt(nBpm);
+                trovato = true;
+            }
+        });
+
+        if(trovato) {
+            localStorage.setItem("dati_pressione", JSON.stringify(archivio));
+            alert("Dato storico corretto!");
+            chiudiModal();
+            aggiornaGrafico();
+        } else {
+            alert("Data e Ora non trovate. Controlla lo storico.");
+        }
+    }
+</script>
+</body>
+</html>
