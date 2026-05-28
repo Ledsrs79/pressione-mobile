@@ -371,4 +371,80 @@
             type: 'line',
             data: {
                 labels: etichette,
-                datasets:
+                datasets: [
+                    { label: 'Max', data: datasetMax, borderColor: coloreMax, backgroundColor: coloreMax, tension: 0.2, borderWidth: 2.5 },
+                    { label: 'Min', data: datasetMin, borderColor: coloreMin, backgroundColor: coloreMin, borderDash: [5, 5], tension: 0.2, borderWidth: 2 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                    y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+                },
+                plugins: {
+                    legend: { labels: { color: 'white', font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    function apriModal() {
+        let archivio = ottieniDati();
+        let corpo = document.getElementById("corpoTabella");
+        corpo.innerHTML = "";
+
+        [...archivio].reverse().forEach(d => {
+            let riga = `<tr>
+                <td>${d.data}</td>
+                <td>${d.momento.substring(0,3)}</td>
+                <td>${d.max}</td>
+                <td>${d.min}</td>
+                <td>${d.bpm}</td>
+            </tr>`;
+            corpo.innerHTML += riga;
+        });
+
+        document.getElementById("modalModifica").style.display = "flex";
+    }
+
+    function chiudiModal() {
+        document.getElementById("modalModifica").style.display = "none";
+    }
+
+    function eseguiModifica() {
+        let target = pulisciStringa(document.getElementById("targetData").value);
+        let nMax = document.getElementById("nMax").value;
+        let nMin = document.getElementById("nMin").value;
+        let nBpm = document.getElementById("nBpm").value;
+
+        if(!target || !nMax || !nMin || !nBpm) {
+            alert("Compila tutti i campi di modifica!");
+            return;
+        }
+
+        let archivio = ottieniDati();
+        let trovato = false;
+
+        archivio.forEach(d => {
+            if(d.data === target) {
+                d.max = parseInt(nMax);
+                d.min = parseInt(nMin);
+                d.bpm = parseInt(nBpm);
+                trovato = true;
+            }
+        });
+
+        if(trovato) {
+            localStorage.setItem("dati_pressione", JSON.stringify(archivio));
+            alert("Dato storico corretto con successo!");
+            chiudiModal();
+            aggiornaGrafico();
+        } else {
+            alert("Data e Ora non trovate. Controlla il formato.");
+        }
+    }
+</script>
+</body>
+</html>
