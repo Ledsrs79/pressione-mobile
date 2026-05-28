@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CardioLog Mobile</title>
     
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4698/4698114.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4698/4698114.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4698/4698114.png?v=2">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4698/4698114.png?v=2">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -271,23 +271,21 @@
         </div>
 
         <div class="form-grid">
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label>Data e Ora della riga da cambiare:</label>
-                    <input type="text" id="targetData" placeholder="Scrivi es. 28/05 14:30">
-                </div>
-                <div class="form-group">
-                    <label>Nuova Max:</label>
-                    <input type="number" id="nMax" placeholder="es. 120">
-                </div>
-                <div class="form-group">
-                    <label>Nuova Min:</label>
-                    <input type="number" id="nMin" placeholder="es. 80">
-                </div>
-                <div class="form-group full-width">
-                    <label>Nuovi Battiti (BPM):</label>
-                    <input type="number" id="nBpm" placeholder="es. 72">
-                </div>
+            <div class="form-group full-width">
+                <label>Data e Ora della riga da cambiare:</label>
+                <input type="text" id="targetData" placeholder="Scrivi es. 28/05 14:30">
+            </div>
+            <div class="form-group">
+                <label>Nuova Max:</label>
+                <input type="number" id="nMax" placeholder="es. 120">
+            </div>
+            <div class="form-group">
+                <label>Nuova Min:</label>
+                <input type="number" id="nMin" placeholder="es. 80">
+            </div>
+            <div class="form-group full-width">
+                <label>Nuovi Battiti (BPM):</label>
+                <input type="number" id="nBpm" placeholder="es. 72">
             </div>
         </div>
         <button class="btn-green" onclick="eseguiModifica()">APPLICA MODIFICA</button>
@@ -303,7 +301,6 @@
         aggiornaGrafico();
     });
 
-    // Funzione di utilità per rimuovere spazi se non supportato nativamente
     function pulisciStringa(str) {
         return str ? str.toString().replace(/^\s+|\s+$/g, '') : '';
     }
