@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CardioLog Mobile</title>
     
-    <!-- COLLEGAMENTI CORRETTI IN FORMATO PNG PER COMPATIBILITÀ ANDROID -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="icona.svg">
     <link rel="apple-touch-icon" href="icona.svg">
@@ -19,6 +18,8 @@
             --text-muted: #A0AEC0;
             --blue-accent: #3182CE;
             --green-accent: #38A169;
+            --orange-accent: #DD6B20;
+            --red-accent: #E53E3E;
             --gray-btn: #4A5568;
         }
 
@@ -128,6 +129,8 @@
         .btn-blue { background-color: var(--blue-accent); color: white; }
         .btn-gray { background-color: var(--gray-btn); color: white; }
         .btn-green { background-color: var(--green-accent); color: white; }
+        .btn-orange { background-color: var(--orange-accent); color: white; }
+        .btn-red-sm { background-color: var(--red-accent); color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; margin: 0; }
 
         .tabs {
             display: flex;
@@ -176,14 +179,14 @@
             padding: 20px;
             border-radius: 15px;
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             max-height: 90vh;
             overflow-y: auto;
             box-sizing: border-box;
         }
 
         .table-wrapper {
-            max-height: 180px;
+            max-height: 200px;
             overflow-y: auto;
             margin-bottom: 20px;
             border: 1px solid var(--gray-btn);
@@ -197,12 +200,19 @@
         }
 
         th, td {
-            padding: 10px 6px;
+            padding: 10px 4px;
             text-align: center;
             border-bottom: 1px solid var(--gray-btn);
         }
 
         th { background-color: var(--bg-main); color: var(--text-muted); }
+        
+        .import-export-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -220,6 +230,10 @@
                 </select>
             </div>
             <div class="form-group">
+                <label>Data e Ora Misurazione:</label>
+                <input type="datetime-local" id="dataManuale">
+            </div>
+            <div class="form-group">
                 <label>Pressione Max (Sistolica):</label>
                 <input type="number" id="max" placeholder="es. 120">
             </div>
@@ -227,32 +241,40 @@
                 <label>Pressione Min (Diastolica):</label>
                 <input type="number" id="min" placeholder="es. 80">
             </div>
-            <div class="form-group">
+            <div class="form-group full-width">
                 <label>Battiti Cardiaci (BPM):</label>
                 <input type="number" id="bpm" placeholder="es. 70">
             </div>
         </div>
-        <button class="btn-blue" onclick="salvaDati()">SALVA MISURAZIONE</button>
-        <button class="btn-gray" onclick="apriModal()">Gestisci e Correggi Dati Storici</button>
+        <button type="button" class="btn-blue" onclick="salvaDati()">SALVA MISURAZIONE</button>
+        <button type="button" class="btn-gray" onclick="apriModal()">Gestisci, Esporta e Importa Dati</button>
     </div>
 
     <div class="card">
         <label style="display:block; text-align:center; margin-bottom:12px; font-weight:bold; font-size:13px; letter-spacing: 0.5px;">VISUALIZZA ANDAMENTO DI:</label>
         <div class="tabs">
-            <button class="tab-btn active" onclick="cambiaTab('Mattina')">Mattina</button>
-            <button class="tab-btn" onclick="cambiaTab('Pranzo')">Pranzo</button>
-            <button class="tab-btn" onclick="cambiaTab('Sera')">Sera</button>
+            <button type="button" class="tab-btn active" onclick="cambiaTab('Mattina')">Mattina</button>
+            <button type="button" class="tab-btn" onclick="cambiaTab('Pranzo')">Pranzo</button>
+            <button type="button" class="tab-btn" onclick="cambiaTab('Sera')">Sera</button>
         </div>
         <div class="chart-container">
             <canvas id="graficoPressione"></canvas>
         </div>
+        <button type="button" class="btn-gray" onclick="condividiGrafico()" style="margin-top: 15px; margin-bottom: 0; background-color: #4A5568;">
+            📱 CONDIVIDI GRAFICO (IMMAGINE)
+        </button>
     </div>
 </div>
 
 <div id="modalModifica" class="modal">
     <div class="modal-content">
-        <h2>Correzione Dati Archivio</h2>
-        <p style="font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:12px;">Seleziona data e ora esatta da modificare:</p>
+        <h2>Gestione Archivio</h2>
+        
+        <div class="import-export-grid">
+            <button type="button" class="btn-green" onclick="esportaCSV()" style="margin-bottom:0; background-color: #2F855A;">⬇️ ESPORTA</button>
+            <button type="button" class="btn-orange" onclick="document.getElementById('inputFile').click()" style="margin-bottom:0;">📤 IMPORTA</button>
+        </div>
+        <input type="file" id="inputFile" accept=".csv" style="display:none;" onchange="importaCSV(this)">
         
         <div class="table-wrapper">
             <table>
@@ -263,6 +285,7 @@
                         <th>Max</th>
                         <th>Min</th>
                         <th>BPM</th>
+                        <th>Azione</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabella">
@@ -288,8 +311,8 @@
                 <input type="number" id="nBpm" placeholder="es. 72">
             </div>
         </div>
-        <button class="btn-green" onclick="eseguiModifica()">APPLICA MODIFICA</button>
-        <button class="btn-gray" onclick="chiudiModal()">ANNULLA</button>
+        <button type="button" class="btn-blue" onclick="eseguiModifica()">APPLICA MODIFICA</button>
+        <button type="button" class="btn-gray" onclick="chiudiModal()">CHIUDI</button>
     </div>
 </div>
 
@@ -298,8 +321,15 @@
     let tabCorrente = 'Mattina';
 
     document.addEventListener("DOMContentLoaded", () => {
+        impostaDataAttuale();
         aggiornaGrafico();
     });
+
+    function impostaDataAttuale() {
+        let adesso = new Date();
+        adesso.setMinutes(adesso.getMinutes() - adesso.getTimezoneOffset());
+        document.getElementById('dataManuale').value = adesso.toISOString().slice(0,16);
+    }
 
     function pulisciStringa(str) {
         return str ? str.toString().replace(/^\s+|\s+$/g, '') : '';
@@ -315,17 +345,18 @@
         let max = pulisciStringa(document.getElementById("max").value);
         let min = pulisciStringa(document.getElementById("min").value);
         let bpm = pulisciStringa(document.getElementById("bpm").value);
+        let dataScelta = document.getElementById("dataManuale").value;
 
-        if(!max || !min || !bpm) {
+        if(!max || !min || !bpm || !dataScelta) {
             alert("Tutti i campi devono essere compilati!");
             return;
         }
 
-        let adesso = new Date();
-        let dataOra = adesso.getDate().toString().padStart(2, '0') + '/' + 
-                      (adesso.getMonth()+1).toString().padStart(2, '0') + ' ' + 
-                      adesso.getHours().toString().padStart(2, '0') + ':' + 
-                      adesso.getMinutes().toString().padStart(2, '0');
+        let dataOggetto = new Date(dataScelta);
+        let dataOra = dataOggetto.getDate().toString().padStart(2, '0') + '/' + 
+                      (dataOggetto.getMonth()+1).toString().padStart(2, '0') + ' ' + 
+                      dataOggetto.getHours().toString().padStart(2, '0') + ':' + 
+                      dataOggetto.getMinutes().toString().padStart(2, '0');
 
         let nuovoDato = { data: dataOra, momento: momento, max: parseInt(max), min: parseInt(min), bpm: parseInt(bpm) };
         let archivio = ottieniDati();
@@ -335,6 +366,7 @@
         document.getElementById("max").value = "";
         document.getElementById("min").value = "";
         document.getElementById("bpm").value = "";
+        impostaDataAttuale();
 
         alert("Misurazione salvata correttamente!");
         aggiornaGrafico();
@@ -344,12 +376,25 @@
         tabCorrente = momento;
         let bottoni = document.querySelectorAll(".tab-btn");
         bottoni.forEach(b => b.classList.remove("active"));
-        event.target.classList.add("active");
-        aggiarnaGrafico();
+        if(event && event.target) event.target.classList.add("active");
+        aggiornaGrafico();
+    }
+
+    function ordinaArchivio(archivio) {
+        return archivio.sort((a, b) => {
+            let [dataA, oraA] = a.data.split(" ");
+            let [giornoA, meseA] = dataA.split("/");
+            let [dataB, oraB] = b.data.split(" ");
+            let [giornoB, meseB] = dataB.split("/");
+            return new Date(2026, meseA-1, giornoA, oraA.split(":")[0], oraA.split(":")[1]) - 
+                   new Date(2026, meseB-1, giornoB, oraB.split(":")[0], oraB.split(":")[1]);
+        });
     }
 
     function aggiornaGrafico() {
         let archivio = ottieniDati();
+        archivio = ordinaArchivio(archivio);
+
         let datiFiltrati = archivio.filter(d => d.momento === tabCorrente);
 
         let etichette = datiFiltrati.map(d => d.data.split(" ")[0]);
@@ -359,9 +404,7 @@
         let coloreMax = tabCorrente === 'Mattina' ? '#38BDF8' : (tabCorrente === 'Pranzo' ? '#F59E0B' : '#A855F7');
         let coloreMin = tabCorrente === 'Mattina' ? '#60A5FA' : (tabCorrente === 'Pranzo' ? '#FBBF24' : '#F472B6');
 
-        if (mioGrafico) {
-            mioGrafico.destroy();
-        }
+        if (mioGrafico) { mioGrafico.destroy(); }
 
         let ctx = document.getElementById('graficoPressione').getContext('2d');
         mioGrafico = new Chart(ctx, {
@@ -376,19 +419,32 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: { 
+                    legend: { labels: { color: 'white', font: { size: 12 } } },
+                    customCanvasBackgroundColor: { color: '#2D3748' }
+                },
                 scales: {
                     x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } },
                     y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.08)' } }
-                },
-                plugins: {
-                    legend: { labels: { color: 'white', font: { size: 12 } } }
                 }
-            }
+            },
+            plugins: [{
+                id: 'customCanvasBackgroundColor',
+                beforeDraw: (chart, args, options) => {
+                    const {ctx} = chart;
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = options.color || '#2D3748';
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            }]
         });
     }
 
     function apriModal() {
         let archivio = ottieniDati();
+        archivio = ordinaArchivio(archivio);
         let corpo = document.getElementById("corpoTabella");
         corpo.innerHTML = "";
 
@@ -399,6 +455,7 @@
                 <td>${d.max}</td>
                 <td>${d.min}</td>
                 <td>${d.bpm}</td>
+                <td><button type="button" class="btn-red-sm" onclick="eliminaDato('${d.data}')">Elimina</button></td>
             </tr>`;
             corpo.innerHTML += riga;
         });
@@ -406,8 +463,27 @@
         document.getElementById("modalModifica").style.display = "flex";
     }
 
+    function svuotaCampiModifica() {
+        document.getElementById("targetData").value = "";
+        document.getElementById("nMax").value = "";
+        document.getElementById("nMin").value = "";
+        document.getElementById("nBpm").value = "";
+    }
+
     function chiudiModal() {
         document.getElementById("modalModifica").style.display = "none";
+        svuotaCampiModifica();
+    }
+
+    function eliminaDato(dataTarget) {
+        if(confirm("Sei sicuro di voler eliminare definitivamente la misurazione del " + dataTarget + "?")) {
+            let archivio = ottieniDati();
+            let nuovoArchivio = archivio.filter(d => d.data !== dataTarget);
+            localStorage.setItem("dati_pressione", JSON.stringify(nuovoArchivio));
+            alert("Misurazione eliminata!");
+            apriModal();
+            aggiornaGrafico();
+        }
     }
 
     function eseguiModifica() {
@@ -436,11 +512,106 @@
         if(trovato) {
             localStorage.setItem("dati_pressione", JSON.stringify(archivio));
             alert("Dato storico corretto con successo!");
+            svuotaCampiModifica();
             chiudiModal();
             aggiornaGrafico();
         } else {
             alert("Data e Ora non trovate. Controlla il formato.");
         }
+    }
+
+    function esportaCSV() {
+        let archivio = ottieniDati();
+        if(archivio.length === 0) {
+            alert("Non ci sono dati da esportare!");
+            return;
+        }
+        archivio = ordinaArchivio(archivio);
+        let csvContent = "data:text/csv;charset=utf-8,Data/Ora,Momento,Pressione Max,Pressione Min,Battiti BPM\n";
+        archivio.forEach(d => {
+            csvContent += `"${d.data}","${d.momento}",${d.max},${d.min},${d.bpm}\n`;
+        });
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "CardioLog_Dati_Pressione.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function importaCSV(input) {
+        let file = input.files[0];
+        if (!file) return;
+
+        let lettore = new FileReader();
+        lettore.onload = function(e) {
+            let testo = e.target.result;
+            let righe = testo.split("\n");
+            let archivioAttuale = ottieniDati();
+            let contatoreImportati = 0;
+
+            for(let i = 1; i < righe.length; i++) {
+                let riga = righe[i].trim();
+                if(!riga) continue;
+
+                let campi = riga.split(",");
+                if(campi.length < 5) continue;
+
+                let data = campi[0].replace(/"/g, "");
+                let momento = campi[1].replace(/"/g, "");
+                let max = parseInt(campi[2]);
+                let min = parseInt(campi[3]);
+                let bpm = parseInt(campi[4]);
+
+                let esisteGia = archivioAttuale.some(d => d.data === data);
+                
+                if(!esisteGia && data && momento && !isNaN(max)) {
+                    archivioAttuale.push({ data: data, momento: momento, max: max, min: min, bpm: bpm });
+                    contatoreImportati++;
+                }
+            }
+
+            localStorage.setItem("dati_pressione", JSON.stringify(archivioAttuale));
+            alert("Importazione completata!\nNuove misurazioni aggiunte: " + contatoreImportati);
+            input.value = "";
+            apriModal();
+            aggiornaGrafico();
+        };
+        lettore.readAsText(file);
+    }
+
+    async function condividiGrafico() {
+        let canvas = document.getElementById('graficoPressione');
+        
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                alert("Errore nella generazione del grafico.");
+                return;
+            }
+            
+            let file = new File([blob], `CardioLog_${tabCorrente}.png`, { type: 'image/png' });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: `Andamento Pressione - ${tabCorrente}`,
+                        text: `Ecco il mio grafico della pressione (${tabCorrente}) generato con CardioLog.`
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        alert("Impossibile condividere il file.");
+                    }
+                }
+            } else {
+                let link = document.createElement('a');
+                link.download = `CardioLog_${tabCorrente}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                alert("Condivisione nativa non supportata su questo browser. Il grafico è stato scaricato!");
+            }
+        }, 'image/png');
     }
 </script>
 </body>
