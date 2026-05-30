@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CardioLog Mobile</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="icona.svg">
-    <link rel="apple-touch-icon" href="icona.svg">
-    
+    <title>CardioLog Cloud Private</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -34,192 +29,41 @@
             align-items: center;
         }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            box-sizing: border-box;
-        }
-
-        .card {
-            background-color: var(--bg-card);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-
-        h2 {
-            font-size: 16px;
-            color: var(--blue-accent);
-            text-transform: uppercase;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        @media (min-width: 400px) {
-            .form-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group.full-width {
-            grid-column: span 1;
-        }
-        
-        @media (min-width: 400px) {
-            .form-group.full-width {
-                grid-column: span 2;
-            }
-        }
-
-        label {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        input, select {
-            background-color: var(--bg-main);
-            border: 1px solid var(--gray-btn);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            box-sizing: border-box;
-            width: 100%;
-        }
-
-        input::placeholder {
-            color: #55637a;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: background 0.2s;
-        }
-
-        button:last-child {
-            margin-bottom: 0;
-        }
-
+        .container { width: 100%; max-width: 500px; box-sizing: border-box; }
+        .card { background-color: var(--bg-card); border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); box-sizing: border-box; }
+        h2 { font-size: 16px; color: var(--blue-accent); text-transform: uppercase; margin-top: 0; margin-bottom: 20px; text-align: center; font-weight: bold; letter-spacing: 0.5px; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+        @media (min-width: 400px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: span 1; }
+        @media (min-width: 400px) { .form-group.full-width { grid-column: span 2; } }
+        label { color: var(--text-muted); font-size: 13px; margin-bottom: 6px; font-weight: 500; }
+        input, select { background-color: var(--bg-main); border: 1px solid var(--gray-btn); color: var(--text-main); padding: 12px; border-radius: 8px; font-size: 15px; box-sizing: border-box; width: 100%; }
+        button { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; }
+        button:last-child { margin-bottom: 0; }
         .btn-blue { background-color: var(--blue-accent); color: white; }
         .btn-gray { background-color: var(--gray-btn); color: white; }
         .btn-green { background-color: var(--green-accent); color: white; }
         .btn-orange { background-color: var(--orange-accent); color: white; }
         .btn-red-sm { background-color: var(--red-accent); color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; margin: 0; }
-
-        .tabs {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--gray-btn);
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-weight: bold;
-            padding: 12px;
-            font-size: 15px;
-            border-bottom: 3px solid transparent;
-            width: auto;
-            margin-bottom: 0;
-        }
-
-        .tab-btn.active {
-            color: var(--blue-accent);
-            border-bottom: 3px solid var(--blue-accent);
-        }
-
-        .chart-container {
-            position: relative;
-            height: 260px;
-            width: 100%;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        .modal-content {
-            background-color: var(--bg-card);
-            padding: 20px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 450px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-
-        .table-wrapper {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid var(--gray-btn);
-            border-radius: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        th, td {
-            padding: 10px 4px;
-            text-align: center;
-            border-bottom: 1px solid var(--gray-btn);
-        }
-
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 15px; border-bottom: 1px solid var(--gray-btn); }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-weight: bold; padding: 12px; font-size: 15px; border-bottom: 3px solid transparent; width: auto; margin-bottom: 0; }
+        .tab-btn.active { color: var(--blue-accent); border-bottom: 3px solid var(--blue-accent); }
+        .chart-container { position: relative; height: 260px; width: 100%; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; padding: 10px; box-sizing: border-box; }
+        .modal-content { background-color: var(--bg-card); padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
+        .table-wrapper { max-height: 200px; overflow-y: auto; margin-bottom: 20px; border: 1px solid var(--gray-btn); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px 4px; text-align: center; border-bottom: 1px solid var(--gray-btn); }
         th { background-color: var(--bg-main); color: var(--text-muted); }
-        
-        .import-export-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .import-export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>Registrazione Valori</h2>
+        <h2>Registrazione Valori (Cloud)</h2>
         <div class="form-grid">
             <div class="form-group">
                 <label>Momento della giornata:</label>
@@ -246,7 +90,7 @@
                 <input type="number" id="bpm" placeholder="es. 70">
             </div>
         </div>
-        <button type="button" class="btn-blue" onclick="salvaDati()">SALVA MISURAZIONE</button>
+        <button type="button" class="btn-blue" onclick="salvaDati()">SALVA SU GOOGLE DRIVE</button>
         <button type="button" class="btn-gray" onclick="apriModal()">Gestisci, Esporta e Importa Dati</button>
     </div>
 
@@ -268,8 +112,7 @@
 
 <div id="modalModifica" class="modal">
     <div class="modal-content">
-        <h2>Gestione Archivio</h2>
-        
+        <h2>Gestione Archivio (Cloud)</h2>
         <div class="import-export-grid">
             <button type="button" class="btn-green" onclick="esportaCSV()" style="margin-bottom:0; background-color: #2F855A;">⬇️ ESPORTA</button>
             <button type="button" class="btn-orange" onclick="document.getElementById('inputFile').click()" style="margin-bottom:0;">📤 IMPORTA</button>
@@ -288,8 +131,7 @@
                         <th>Azione</th>
                     </tr>
                 </thead>
-                <tbody id="corpoTabella">
-                </tbody>
+                <tbody id="corpoTabella"></tbody>
             </table>
         </div>
 
@@ -317,27 +159,52 @@
 </div>
 
 <script>
+    // URL DELLO SCRIPT GOOGLE INSERITO DIRETTAMENTE
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMG2VM_LtmQbzif8Hovjfd352yXyN_0w4Er2U9aAECHb51SEli5V9i5YVinP3hyNGh/exec";
+
     let mioGrafico = null;
     let tabCorrente = 'Mattina';
+    let cacheArchivio = [];
 
     document.addEventListener("DOMContentLoaded", () => {
         impostaDataAttuale();
-        aggiornaGrafico();
+        caricaDatiDalCloud();
     });
 
     function impostaDataAttuale() {
         let adesso = new Date();
         adesso.setMinutes(adesso.getMinutes() - adesso.getTimezoneOffset());
-        document.getElementById('dataManuale').value = adesso.toISOString().slice(0,16);
+        document.getElementById('dataManuale').value = !isNaN(adesso.getTime()) ? adesso.toISOString().slice(0,16) : '';
     }
 
-    function pulisciStringa(str) {
-        return str ? str.toString().replace(/^\s+|\s+$/g, '') : '';
+    function pulisciStringa(str) { return str ? str.toString().replace(/^\s+|\s+$/g, '') : ''; }
+
+    function caricaDatiDalCloud() {
+        fetch(GOOGLE_SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+            cacheArchivio = Array.isArray(data) ? data : [];
+            aggiornaGrafico();
+        })
+        .catch(err => console.error("Errore di caricamento dati da Google Sheets:", err));
     }
 
-    function ottieniDati() {
-        let dati = localStorage.getItem("dati_pressione");
-        return dati ? JSON.parse(dati) : [];
+    function inviaInteroArchivioAlCloud(nuovoArchivio) {
+        return fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuovoArchivio)
+        })
+        .then(() => {
+            cacheArchivio = nuovoArchivio;
+            aggiornaGrafico();
+            return true;
+        })
+        .catch(err => {
+            alert("Errore di connessione durante il salvataggio.");
+            return false;
+        });
     }
 
     function salvaDati() {
@@ -359,17 +226,22 @@
                       dataOggetto.getMinutes().toString().padStart(2, '0');
 
         let nuovoDato = { data: dataOra, momento: momento, max: parseInt(max), min: parseInt(min), bpm: parseInt(bpm) };
-        let archivio = ottieniDati();
-        archivio.push(nuovoDato);
-        localStorage.setItem("dati_pressione", JSON.stringify(archivio));
 
-        document.getElementById("max").value = "";
-        document.getElementById("min").value = "";
-        document.getElementById("bpm").value = "";
-        impostaDataAttuale();
-
-        alert("Misurazione salvata correttamente!");
-        aggiornaGrafico();
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuovoDato)
+        })
+        .then(() => {
+            document.getElementById("max").value = "";
+            document.getElementById("min").value = "";
+            document.getElementById("bpm").value = "";
+            impostaDataAttuale();
+            alert("Misurazione inviata a Google Drive!");
+            setTimeout(caricaDatiDalCloud, 1500); // Piccolo delay per dare il tempo a Google di scrivere
+        })
+        .catch(err => alert("Errore nell'invio dei dati a Google Drive."));
     }
 
     function cambiaTab(momento) {
@@ -392,10 +264,8 @@
     }
 
     function aggiornaGrafico() {
-        let archivio = ottieniDati();
-        archivio = ordinaArchivio(archivio);
-
-        let datiFiltrati = archivio.filter(d => d.momento === tabCorrente);
+        let archivioOrdinato = ordinaArchivio([...cacheArchivio]);
+        let datiFiltrati = archivioOrdinato.filter(d => d.momento === tabCorrente);
 
         let etichette = datiFiltrati.map(d => d.data.split(" ")[0]);
         let datasetMax = datiFiltrati.map(d => d.max);
@@ -443,12 +313,11 @@
     }
 
     function apriModal() {
-        let archivio = ottieniDati();
-        archivio = ordinaArchivio(archivio);
+        let archivioOrdinato = ordinaArchivio([...cacheArchivio]);
         let corpo = document.getElementById("corpoTabella");
         corpo.innerHTML = "";
 
-        [...archivio].reverse().forEach(d => {
+        [...archivioOrdinato].reverse().forEach(d => {
             let riga = `<tr>
                 <td>${d.data}</td>
                 <td>${d.momento.substring(0,3)}</td>
@@ -459,7 +328,6 @@
             </tr>`;
             corpo.innerHTML += riga;
         });
-
         document.getElementById("modalModifica").style.display = "flex";
     }
 
@@ -476,13 +344,11 @@
     }
 
     function eliminaDato(dataTarget) {
-        if(confirm("Sei sicuro di voler eliminare definitivamente la misurazione del " + dataTarget + "?")) {
-            let archivio = ottieniDati();
-            let nuovoArchivio = archivio.filter(d => d.data !== dataTarget);
-            localStorage.setItem("dati_pressione", JSON.stringify(nuovoArchivio));
-            alert("Misurazione eliminata!");
-            apriModal();
-            aggiornaGrafico();
+        if(confirm("Sei sicuro di voler eliminare dal Cloud la misurazione del " + dataTarget + "?")) {
+            let nuovoArchivio = cacheArchivio.filter(d => d.data !== dataTarget);
+            inviaInteroArchivioAlCloud(nuovoArchivio).then(success => {
+                if(success) { alert("Misurazione eliminata!"); apriModal(); }
+            });
         }
     }
 
@@ -497,40 +363,29 @@
             return;
         }
 
-        let archivio = ottieniDati();
         let trovato = false;
-
-        archivio.forEach(d => {
+        let nuovoArchivio = cacheArchivio.map(d => {
             if(d.data === target) {
-                d.max = parseInt(nMax);
-                d.min = parseInt(nMin);
-                d.bpm = parseInt(nBpm);
                 trovato = true;
+                return { ...d, max: parseInt(nMax), min: parseInt(nMin), bpm: parseInt(nBpm) };
             }
+            return d;
         });
 
         if(trovato) {
-            localStorage.setItem("dati_pressione", JSON.stringify(archivio));
-            alert("Dato storico corretto con successo!");
-            svuotaCampiModifica();
-            chiudiModal();
-            aggiornaGrafico();
+            inviaInteroArchivioAlCloud(nuovoArchivio).then(success => {
+                if(success) { alert("Dato storico modificato!"); chiudiModal(); }
+            });
         } else {
             alert("Data e Ora non trovate. Controlla il formato.");
         }
     }
 
     function esportaCSV() {
-        let archivio = ottieniDati();
-        if(archivio.length === 0) {
-            alert("Non ci sono dati da esportare!");
-            return;
-        }
-        archivio = ordinaArchivio(archivio);
+        if(cacheArchivio.length === 0) { alert("Non ci sono dati da esportare!"); return; }
+        let archivioOrdinato = ordinaArchivio([...cacheArchivio]);
         let csvContent = "data:text/csv;charset=utf-8,Data/Ora,Momento,Pressione Max,Pressione Min,Battiti BPM\n";
-        archivio.forEach(d => {
-            csvContent += `"${d.data}","${d.momento}",${d.max},${d.min},${d.bpm}\n`;
-        });
+        archivioOrdinato.forEach(d => { csvContent += `"${d.data}","${d.momento}",${d.max},${d.min},${d.bpm}\n`; });
         let encodedUri = encodeURI(csvContent);
         let link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -548,13 +403,12 @@
         lettore.onload = function(e) {
             let testo = e.target.result;
             let righe = testo.split("\n");
-            let archivioAttuale = ottieniDati();
+            let nuovoArchivio = [...cacheArchivio];
             let contatoreImportati = 0;
 
             for(let i = 1; i < righe.length; i++) {
                 let riga = righe[i].trim();
                 if(!riga) continue;
-
                 let campi = riga.split(",");
                 if(campi.length < 5) continue;
 
@@ -564,52 +418,39 @@
                 let min = parseInt(campi[3]);
                 let bpm = parseInt(campi[4]);
 
-                let esisteGia = archivioAttuale.some(d => d.data === data);
-                
+                let esisteGia = nuovoArchivio.some(d => d.data === data);
                 if(!esisteGia && data && momento && !isNaN(max)) {
-                    archivioAttuale.push({ data: data, momento: momento, max: max, min: min, bpm: bpm });
+                    nuovoArchivio.push({ data: data, momento: momento, max: max, min: min, bpm: bpm });
                     contatoreImportati++;
                 }
             }
 
-            localStorage.setItem("dati_pressione", JSON.stringify(archivioAttuale));
-            alert("Importazione completata!\nNuove misurazioni aggiunte: " + contatoreImportati);
-            input.value = "";
-            apriModal();
-            aggiornaGrafico();
+            inviaInteroArchivioAlCloud(nuovoArchivio).then(success => {
+                if(success) {
+                    alert("Importazione completata sul Cloud!\nNuove misurazioni aggiunte: " + contatoreImportati);
+                    input.value = "";
+                    apriModal();
+                }
+            });
         };
         lettore.readAsText(file);
     }
 
     async function condividiGrafico() {
         let canvas = document.getElementById('graficoPressione');
-        
         canvas.toBlob(async (blob) => {
-            if (!blob) {
-                alert("Errore nella generazione del grafico.");
-                return;
-            }
-            
+            if (!blob) { alert("Errore nella generazione del grafico."); return; }
             let file = new File([blob], `CardioLog_${tabCorrente}.png`, { type: 'image/png' });
-            
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
-                    await navigator.share({
-                        files: [file],
-                        title: `Andamento Pressione - ${tabCorrente}`,
-                        text: `Ecco il mio grafico della pressione (${tabCorrente}) generato con CardioLog.`
-                    });
-                } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        alert("Impossibile condividere il file.");
-                    }
-                }
+                    await navigator.share({ files: [file], title: `Andamento Pressione - ${tabCorrente}`, text: `Ecco il mio grafico della pressione.` });
+                } catch (err) { if (err.name !== 'AbortError') { alert("Impossibile condividere il file."); } }
             } else {
                 let link = document.createElement('a');
                 link.download = `CardioLog_${tabCorrente}.png`;
                 link.href = canvas.toDataURL();
                 link.click();
-                alert("Condivisione nativa non supportata su questo browser. Il grafico è stato scaricato!");
+                alert("Grafico scaricato!");
             }
         }, 'image/png');
     }
